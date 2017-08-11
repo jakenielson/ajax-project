@@ -13,6 +13,7 @@ function loadData() {
     $wikiElem.text("");
     $nytElem.text("");
     $nytElem.empty();
+    $wikiElem.empty();
 
     // load streetview
     var url = 'http://maps.googleapis.com/maps/api/streetview?size=600x400&location=' + $street.val() + ', ' + $city.val();
@@ -20,9 +21,9 @@ function loadData() {
     $body.append($image);
 
     // NYTimes
-    url = "https://api.asdfsgergvd.com/svc/search/v2/articlesearch.json";
+    url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
     url += '?' + $.param({
-      'api-key': "XXXXXXXXXXXXXXXXXXXXXXX",
+      'api-key': "0a0ef3c641424fbe806a9fc2fd5ea166",
       'q': $city.val()
     });
     $.getJSON(url, function(result){
@@ -40,6 +41,27 @@ function loadData() {
     })
     .error(function(){
       $nytElem.append('<h2>New York Times Articles Could Not Be Loaded</h2>');
+    });
+
+    //wikipedia-links
+    url = "https://en.wikipedia.org/w/api.php?action=opensearch&";
+    url += $.param({
+      'search': $city.val()
+    });
+    url += "&format=json&callback=wikiCallback";
+    $.ajax({
+      url: url,
+      dataType: 'jsonp',
+      success: function(result){
+        console.log(result);
+        var articleList = result[1];
+        var urlList = result[3];
+        for (var i = 0; i < articleList.length; i++){
+          article = articleList[i];
+          url = urlList[i];
+          $wikiElem.append('<li><a href="' + url + '">' + article + '</a></li>');
+        };
+      }
     });
 
     return false;
